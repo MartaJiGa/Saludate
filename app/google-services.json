@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "410988885025",
+    "project_id": "saludate-333",
+    "storage_bucket": "saludate-333.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:410988885025:android:ea3fda21010dbe755bdf60",
+        "android_client_info": {
+          "package_name": "com.svalero.saludate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhJdTPX_XZw9t3_5ckvVX8n6XWuCMsi_Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
