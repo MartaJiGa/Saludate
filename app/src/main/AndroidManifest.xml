@@ -11,6 +11,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Saludate"
-        tools:targetApi="31" />
+        tools:targetApi="31" >
 
+        <activity android:name=".view.UserLoginView"
+            android:exported="true"
+            android:theme="@style/Theme.Saludate.Splash"
+            android:label="@string/user_login_view" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".view.UserRegistrationView"
+            android:exported="false"
+            android:label="@string/user_registration_view" />
+
+    </application>
 </manifest>

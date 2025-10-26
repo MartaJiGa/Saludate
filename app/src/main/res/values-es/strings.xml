@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- GENERAL -->
+    <string name="app_name">Salúdate</string>
+
+    <!-- LOGIN & REGISTER -->
+    <string name="user_login_view">Inicio de sesión</string>
+    <string name="user_registration_view">Registro</string>
+    <string name="email">Email</string>
+    <string name="password">Contraseña</string>
+    <string name="confirm_password">Confirmar contraseña</string>
+    <string name="login">Acceder</string>
+    <string name="register">Crear cuenta</string>
+    <string name="go_register">¿Es tu primera vez por aquí? Regístrate</string>
+    <string name="go_login">Inicia sesión si ya tienes usuario</string>
+    <string name="error_empty_email">El email no puede estar vacío</string>
+    <string name="error_empty_password">La contraseña no puede estar vacía</string>
+    <string name="error_empty_password_confirmation">La confirmación de la contraseña no puede estar vacía</string>
+    <string name="error_passwords_comparison">Las contraseñas no coinciden</string>
+</resources>
