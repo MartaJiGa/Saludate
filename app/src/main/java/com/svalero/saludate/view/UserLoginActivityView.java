@@ -18,21 +18,34 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.svalero.saludate.R;
+import com.svalero.saludate.contract.UserLoginContract;
+import com.svalero.saludate.presenter.UserLoginPresenter;
 
-public class UserLoginView extends AppCompatActivity {
+public class UserLoginActivityView extends AppCompatActivity implements UserLoginContract.View {
+
+    //region Properties
     FirebaseAuth mAuth;
+
+    UserLoginPresenter presenter;
 
     EditText edtEmailAddress, edtPassword;
     Button btnLogin;
     TextView tvGoRegister;
 
+    //endregion
+
+    //region Lifecycle
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.Theme_Saludate);
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_user_login);
+        setTitle(R.string.user_login_view);
 
         mAuth = FirebaseAuth.getInstance();
+        presenter = new UserLoginPresenter(this);
 
         initializeComponents();
         initializeButtonListeners();
@@ -41,12 +54,32 @@ public class UserLoginView extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
-            reload();
-        }
+        goToMain();
     }
+
+    //endregion
+
+    //region Override from contract
+
+    @Override
+    public void navigateToMain() {
+        goToMain();
+    }
+
+    @Override
+    public void clearInputs() {
+        edtEmailAddress.setText("");
+        edtPassword.setText("");
+    }
+
+    @Override
+    public void showError(String message) {
+        Toast.makeText(UserLoginActivityView.this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    //endregion
+
+    //region Methods
 
     public void initializeComponents(){
         edtEmailAddress = findViewById(R.id.edt_login_email_address);
@@ -66,7 +99,7 @@ public class UserLoginView extends AppCompatActivity {
         tvGoRegister.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                goToLogin();
+                goToUserRegistration();
             }
         });
     }
@@ -77,40 +110,30 @@ public class UserLoginView extends AppCompatActivity {
         password = String.valueOf(edtPassword.getText());
 
         if(TextUtils.isEmpty(email)){
-            Toast.makeText(UserLoginView.this, R.string.error_empty_email, Toast.LENGTH_SHORT).show();
+            Toast.makeText(UserLoginActivityView.this, R.string.error_empty_email, Toast.LENGTH_SHORT).show();
         } else if(TextUtils.isEmpty(password)){
-            Toast.makeText(UserLoginView.this, R.string.error_empty_password, Toast.LENGTH_SHORT).show();
+            Toast.makeText(UserLoginActivityView.this, R.string.error_empty_password, Toast.LENGTH_SHORT).show();
         } else{
-            mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                // Sign in success, update UI with the signed-in user's information
-                                FirebaseUser user = mAuth.getCurrentUser();
-                                updateUI(user);
-                            } else {
-                                // If sign in fails, display a message to the user.
-                                Toast.makeText(UserLoginView.this, "Authentication failed.",
-                                        Toast.LENGTH_SHORT).show();
-                                updateUI(null);
-                            }
-                        }
-                    });
+            presenter.loginUser(email, password);
         }
     }
 
-    public void goToLogin(){
-        Intent intent = new Intent(getApplicationContext(), UserRegistrationView.class);
+    public void goToUserRegistration(){
+        Intent intent = new Intent(getApplicationContext(), UserRegistrationActivityView.class);
         startActivity(intent);
         finish();
     }
 
-    public void reload(){
+    public void goToMain(){
+        FirebaseUser user = presenter.getUser();
 
+        if(user != null){
+            Intent intent = new Intent(getApplicationContext(), MainActivityView.class);
+            intent.putExtra("user", user);
+            startActivity(intent);
+            finish();
+        }
     }
 
-    public void updateUI(FirebaseUser user){
-
-    }
+    //endregion
 }

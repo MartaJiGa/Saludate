@@ -3,7 +3,6 @@ package com.svalero.saludate.view;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,7 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.svalero.saludate.R;
 
-public class UserRegistrationView extends AppCompatActivity {
+public class UserRegistrationActivityView extends AppCompatActivity {
     FirebaseAuth mAuth;
 
     EditText edtEmailAddress, edtPassword, edtConfirmPassword;
@@ -32,6 +31,7 @@ public class UserRegistrationView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_user_registration);
+        setTitle(R.string.user_registration_view);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -69,15 +69,14 @@ public class UserRegistrationView extends AppCompatActivity {
         password = String.valueOf(edtPassword.getText());
         confirmPassword = String.valueOf(edtConfirmPassword.getText());
 
-        //TODO: Hacer comprobación de que la contraseña tenga una complejidad aceptable y validar estructura del email
         if(TextUtils.isEmpty(email)){
-            Toast.makeText(UserRegistrationView.this, R.string.error_empty_email, Toast.LENGTH_SHORT).show();
+            Toast.makeText(UserRegistrationActivityView.this, R.string.error_empty_email, Toast.LENGTH_SHORT).show();
         } else if(TextUtils.isEmpty(password)){
-            Toast.makeText(UserRegistrationView.this, R.string.error_empty_password, Toast.LENGTH_SHORT).show();
+            Toast.makeText(UserRegistrationActivityView.this, R.string.error_empty_password, Toast.LENGTH_SHORT).show();
         } else if(TextUtils.isEmpty(confirmPassword)){
-            Toast.makeText(UserRegistrationView.this, R.string.error_empty_password_confirmation, Toast.LENGTH_SHORT).show();
+            Toast.makeText(UserRegistrationActivityView.this, R.string.error_empty_password_confirmation, Toast.LENGTH_SHORT).show();
         } else if(!password.equals(confirmPassword)){
-            Toast.makeText(UserRegistrationView.this, R.string.error_passwords_comparison, Toast.LENGTH_SHORT).show();
+            Toast.makeText(UserRegistrationActivityView.this, R.string.error_passwords_comparison, Toast.LENGTH_SHORT).show();
         } else{
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -89,7 +88,7 @@ public class UserRegistrationView extends AppCompatActivity {
                                 updateUI(user);
                             } else {
                                 // If sign in fails, display a message to the user.
-                                Toast.makeText(UserRegistrationView.this, "Authentication failed.",
+                                Toast.makeText(UserRegistrationActivityView.this, "Authentication failed.",
                                         Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -98,7 +97,7 @@ public class UserRegistrationView extends AppCompatActivity {
     }
 
     public void goToLogin(){
-        Intent intent = new Intent(getApplicationContext(), UserLoginView.class);
+        Intent intent = new Intent(getApplicationContext(), UserLoginActivityView.class);
         startActivity(intent);
         finish();
     }
