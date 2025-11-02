@@ -1,7 +1,5 @@
 package com.svalero.saludate.presenter;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -9,7 +7,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.svalero.saludate.R;
 import com.svalero.saludate.contract.UserLoginContract;
 import com.svalero.saludate.model.UserLoginModel;
 
@@ -44,8 +41,7 @@ public class UserLoginPresenter implements UserLoginContract.Presenter {
                     view.clearInputs();
                     view.navigateToMain();
                 } else {
-                    view.showError(String.valueOf(R.string.error_authentication_failed));
-                    Log.e(String.valueOf(R.string.error_authentication_failed), task.getException().getMessage());
+                    view.showError(task.getException().getMessage());
                 }
             }
         });
@@ -54,11 +50,6 @@ public class UserLoginPresenter implements UserLoginContract.Presenter {
     @Override
     public FirebaseUser getUser() {
         return model.getUser();
-    }
-
-    @Override
-    public boolean isUserLoggedIn() {
-        return model.isUserLoggedIn();
     }
 
     //endregion

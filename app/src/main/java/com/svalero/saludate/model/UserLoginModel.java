@@ -35,10 +35,5 @@ public class UserLoginModel implements UserLoginContract.Model {
         return mAuth.getCurrentUser();
     }
 
-    @Override
-    public boolean isUserLoggedIn() {
-        return mAuth.getCurrentUser() != null;
-    }
-
     //endregion
 }

@@ -19,4 +19,5 @@
     <string name="error_empty_password_confirmation">La confirmación de la contraseña no puede estar vacía</string>
     <string name="error_passwords_comparison">Las contraseñas no coinciden</string>
     <string name="error_authentication_failed">Error al iniciar sesión</string>
+    <string name="error_registration_failed">Error al registrarse</string>
 </resources>

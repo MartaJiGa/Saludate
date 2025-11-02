@@ -8,7 +8,6 @@ public interface UserLoginContract {
     interface Model {
         void loginUser(String email, String password, OnCompleteListener<AuthResult> callback);
         FirebaseUser getUser();
-        boolean isUserLoggedIn();
     }
 
     interface View {
@@ -20,6 +19,5 @@ public interface UserLoginContract {
     interface Presenter {
         void loginUser(String email, String password);
         FirebaseUser getUser();
-        boolean isUserLoggedIn();
     }
 }
