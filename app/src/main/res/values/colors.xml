@@ -7,4 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="saludate_main_color">#186054</color>
+    <color name="saludate_secondary_color">#63bbac</color>
 </resources>

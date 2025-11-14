@@ -13,7 +13,7 @@
         android:theme="@style/Theme.Saludate"
         tools:targetApi="31" >
 
-        <activity android:name=".view.UserLoginActivityView"
+        <activity android:name=".view.activity.UserLoginActivityView"
             android:exported="true"
             android:theme="@style/Theme.Saludate.Splash" >
             <intent-filter>
@@ -23,11 +23,11 @@
         </activity>
 
         <activity
-            android:name=".view.UserRegistrationActivityView"
+            android:name=".view.activity.UserRegistrationActivityView"
             android:exported="false" />
 
         <activity
-            android:name=".view.MainActivityView"
+            android:name=".view.activity.MainActivityView"
             android:exported="false" />
 
     </application>

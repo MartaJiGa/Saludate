@@ -20,4 +20,13 @@
     <string name="error_passwords_comparison">Passwords don\'t match</string>
     <string name="error_authentication_failed">Authentication failed</string>
     <string name="error_registration_failed">Registration failed</string>
+
+    <!-- BOTTOM NAVIGATION BAR -->
+    <string name="calendar">Calendar</string>
+    <string name="user_profile">User profile</string>
+    <string name="skin_conditions">Skin conditions</string>
+
+    <!-- SETTINGS -->
+    <string name="settings">Settings</string>
+
 </resources>
