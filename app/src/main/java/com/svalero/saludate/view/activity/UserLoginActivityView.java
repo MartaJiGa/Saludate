@@ -129,7 +129,6 @@ public class UserLoginActivityView extends AppCompatActivity implements UserLogi
 
         if(user != null){
             Intent intent = new Intent(getApplicationContext(), MainActivityView.class);
-            intent.putExtra("user", user);
             startActivity(intent);
             finish();
         }

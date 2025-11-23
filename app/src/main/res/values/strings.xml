@@ -21,12 +21,21 @@
     <string name="error_authentication_failed">Authentication failed</string>
     <string name="error_registration_failed">Registration failed</string>
 
-    <!-- BOTTOM NAVIGATION BAR -->
+    <!-- CALENDAR SECTION -->
     <string name="calendar">Calendar</string>
-    <string name="user_profile">User profile</string>
+
+    <!-- USER SECTION -->
+    <string name="user">User</string>
+    <string name="user_profile">User Profile</string>
+    <string name="settings">Settings</string>
+    <string name="logout">Logout</string>
+
+    <!-- SKIN CONDITIONS SECTION -->
     <string name="skin_conditions">Skin conditions</string>
 
-    <!-- SETTINGS -->
-    <string name="settings">Settings</string>
+    <!-- DIALOG -->
+    <string name="logout_question">Are you sure you want to log out?</string>
+    <string name="answer_yes">Yes</string>
+    <string name="answer_no">No</string>
 
 </resources>

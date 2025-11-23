@@ -11,7 +11,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.svalero.saludate.R;
 
-public class SettingsFragmentView extends Fragment {
+public class UserProfileFragmentView extends Fragment {
 
     //
 
@@ -28,7 +28,7 @@ public class SettingsFragmentView extends Fragment {
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        return inflater.inflate(R.layout.fragment_settings, container, false);
+        return inflater.inflate(R.layout.fragment_user_profile, container, false);
     }
 
     //endregion

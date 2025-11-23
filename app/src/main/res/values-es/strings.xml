@@ -21,12 +21,21 @@
     <string name="error_authentication_failed">Error al iniciar sesión</string>
     <string name="error_registration_failed">Error al registrarse</string>
 
-    <!-- BOTTOM NAVIGATION BAR -->
+    <!-- CALENDAR SECTION -->
     <string name="calendar">Calendario</string>
-    <string name="user_profile">Perfil de usuario</string>
+
+    <!-- USER SECTION -->
+    <string name="user">Usuario</string>
+    <string name="user_profile">Perfil de Usuario</string>
+    <string name="settings">Configuración</string>
+    <string name="logout">Cerrar Sesión</string>
+
+    <!-- SKIN CONDITIONS SECTION -->
     <string name="skin_conditions">Condiciones cutáneas</string>
 
-    <!-- SETTINGS -->
-    <string name="settings">Configuración</string>
+    <!-- DIALOG -->
+    <string name="logout_question">¿Seguro que desea cerrar sesión?</string>
+    <string name="answer_yes">Sí</string>
+    <string name="answer_no">No</string>
 
 </resources>

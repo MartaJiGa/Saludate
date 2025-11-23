@@ -130,7 +130,6 @@ public class UserRegistrationActivityView extends AppCompatActivity implements U
 
         if(user != null){
             Intent intent = new Intent(getApplicationContext(), MainActivityView.class);
-            intent.putExtra("user", user);
             startActivity(intent);
             finish();
         }

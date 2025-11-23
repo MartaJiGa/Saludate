@@ -7,13 +7,9 @@ import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.svalero.saludate.R;
 
-public class SettingsFragmentView extends Fragment {
-
-    //
+public class SkinConditionsFragmentView extends Fragment {
 
     //region Lifecycle
 
@@ -25,10 +21,7 @@ public class SettingsFragmentView extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-        return inflater.inflate(R.layout.fragment_settings, container, false);
+        return inflater.inflate(R.layout.fragment_skin_conditions, container, false);
     }
 
     //endregion
