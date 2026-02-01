@@ -45,6 +45,7 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
     private SimpleDateFormat dateFormatter;
     private FirebaseUser firebaseUser;
     private UserData userData;
+    private Spinner sexSpinner;
     private int selectedSexPosition;
     private Button btnSave;
 
@@ -62,16 +63,13 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_user_profile, container, false);
 
-        this.presenter = new UserProfilePresenter(this);
+        this.presenter = new UserProfilePresenter(this, this.getContext());
         firebaseUser = presenter.getUser();
 
         userData = new UserData(firebaseUser.getUid());
-        userData = presenter.getUserData();
-
-        userData = new UserData();
+        presenter.getUserData(firebaseUser);
 
         initializeEditText();
-        setValuesInEditText();
         initializeSpinner();
         initializeButtonListeners();
 
@@ -90,16 +88,22 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
     }
 
     @Override
-    public void showSavedUserSuccess() {
-        Toast.makeText(this.getContext(), getString(R.string.success_saving_user), Toast.LENGTH_SHORT).show();
+    public void setDataInControls(UserData retrievedUserData) {
+        userData = retrievedUserData;
+
+        setValuesInEditText();
+        setValueInSexSpinner();
+    }
+
+    @Override
+    public void showSavedUserSuccess(String message) {
+        Toast.makeText(this.getContext(), message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void showError(String message) {
-        String errorMessage = getString(R.string.error_authentication_failed) + ": " + message;
-
-        Toast.makeText(this.getContext(), errorMessage, Toast.LENGTH_SHORT).show();
-        Log.e(getString(R.string.error_authentication_failed), message);
+        Toast.makeText(this.getContext(), message, Toast.LENGTH_SHORT).show();
+        Log.e(getString(R.string.firebase_error_log), message);
     }
 
     //endregion
@@ -115,6 +119,7 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
         edtConfirmNewPassword = view.findViewById(R.id.edt_user_profile_confirm_new_password);
         edtBirthDate = view.findViewById(R.id.edt_birthdate);
 
+        selectedDate = Calendar.getInstance();
         dateFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         edtBirthDate.setOnClickListener(v -> showDatePickerDialog());
     }
@@ -126,18 +131,7 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
         setBirthDate(userData.getBirthdate());
     }
 
-    private void initializeSpinner(){
-        Spinner sexSpinner = view.findViewById(R.id.sex_spinner);
-
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this.requireContext(),
-                R.array.sex_array,
-                android.R.layout.simple_spinner_item
-        );
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        sexSpinner.setAdapter(adapter);
-
+    private void setValueInSexSpinner(){
         switch (userData.getSex()){
             case Constants.FEMALE:
                 sexSpinner.setSelection(1);
@@ -151,6 +145,19 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
             default:
                 sexSpinner.setSelection(0);
         }
+    }
+
+    private void initializeSpinner(){
+        sexSpinner = view.findViewById(R.id.sex_spinner);
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this.requireContext(),
+                R.array.sex_array,
+                android.R.layout.simple_spinner_item
+        );
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sexSpinner.setAdapter(adapter);
 
         sexSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -239,7 +246,6 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
             }
         }
         else{
-            selectedDate = Calendar.getInstance();
             edtBirthDate.setText(dateFormatter.format(selectedDate.getTime()));
         }
     }

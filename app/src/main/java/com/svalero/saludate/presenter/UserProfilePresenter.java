@@ -1,5 +1,7 @@
 package com.svalero.saludate.presenter;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -7,6 +9,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.svalero.saludate.R;
 import com.svalero.saludate.contract.UserProfileContract;
 import com.svalero.saludate.domain.UserData;
 import com.svalero.saludate.model.UserProfileModel;
@@ -18,15 +21,17 @@ public class UserProfilePresenter implements UserProfileContract.Presenter {
     private final UserProfileContract.View view;
     private final UserProfileContract.Model model;
     private final FirebaseAuth mAuth;
+    private final Context context;
 
     //endregion
 
     //region Constructor
 
-    public UserProfilePresenter(UserProfileContract.View view) {
+    public UserProfilePresenter(UserProfileContract.View view, Context context) {
         this.view = view;
         this.model = new UserProfileModel();
         this.mAuth = FirebaseAuth.getInstance();
+        this.context = context;
     }
 
     //endregion
@@ -40,10 +45,10 @@ public class UserProfilePresenter implements UserProfileContract.Presenter {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     view.clearInputs();
-                    view.showSavedUserSuccess();
+                    view.showSavedUserSuccess(context.getString(R.string.success_saving_user));
                 } else {
                     view.clearInputs();
-                    view.showError(task.getException().getMessage());
+                    view.showError(context.getString(R.string.error_authentication_failed) + ": " + task.getException().getMessage());
                 }
             }
         });
@@ -55,8 +60,19 @@ public class UserProfilePresenter implements UserProfileContract.Presenter {
     }
 
     @Override
-    public UserData getUserData() {
-        return model.getUserData();
+    public void getUserData(FirebaseUser firebaseUser) {
+        model.getUserData(firebaseUser, new OnCompleteListener<UserData>() {
+            @Override
+            public void onComplete(@NonNull Task<UserData> task) {
+                if (task.isSuccessful()) {
+                    view.clearInputs();
+                    view.setDataInControls(task.getResult());
+                } else {
+                    view.clearInputs();
+                    view.showError(task.getException().getMessage());
+                }
+            }
+        });
     }
 
     //endregion

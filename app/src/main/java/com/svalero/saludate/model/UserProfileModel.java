@@ -7,18 +7,16 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.svalero.saludate.contract.UserProfileContract;
 import com.svalero.saludate.domain.UserData;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class UserProfileModel implements UserProfileContract.Model {
 
@@ -72,9 +70,36 @@ public class UserProfileModel implements UserProfileContract.Model {
     }
 
     @Override
-    public UserData getUserData() {
-        //TODO: devolver usuario.
-        return null;
+    public void getUserData(FirebaseUser firebaseUser, OnCompleteListener<UserData> callback) {
+        db.collection("users")
+                .document(firebaseUser.getUid())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                UserData userData = document.toObject(UserData.class);
+                                Log.d(TAG, "User data retrieved: " + document.getData());
+
+                                if (callback != null) {
+                                    callback.onComplete(Tasks.forResult(userData));
+                                }
+                            } else {
+                                Log.d(TAG, "No such document");
+                                if (callback != null) {
+                                    callback.onComplete(Tasks.forResult(null));
+                                }
+                            }
+                        } else {
+                            Log.w(TAG, "Error getting document.", task.getException());
+                            if (callback != null) {
+                                callback.onComplete(Tasks.forException(task.getException()));
+                            }
+                        }
+                    }
+                });
     }
 
     //endregion
