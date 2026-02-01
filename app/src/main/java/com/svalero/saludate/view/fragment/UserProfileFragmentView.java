@@ -21,8 +21,6 @@ import com.svalero.saludate.contract.UserProfileContract;
 import com.svalero.saludate.domain.UserData;
 import com.svalero.saludate.presenter.UserProfilePresenter;
 import com.svalero.saludate.util.Constants;
-import com.svalero.saludate.view.activity.MainActivityView;
-import com.svalero.saludate.view.activity.UserLoginActivityView;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

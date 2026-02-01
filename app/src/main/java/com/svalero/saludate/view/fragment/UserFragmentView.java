@@ -11,20 +11,20 @@ import android.widget.Button;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.svalero.saludate.R;
+import com.svalero.saludate.contract.UserContract;
+import com.svalero.saludate.presenter.UserPresenter;
 import com.svalero.saludate.view.activity.UserLoginActivityView;
-import com.svalero.saludate.view.activity.UserRegistrationActivityView;
 
-public class UserFragmentView extends Fragment {
+public class UserFragmentView extends Fragment implements UserContract.View {
 
     //region Properties
 
-    View view;
-    Button userProfileBtn;
-    Button settingsBtn;
-    Button logoutBtn;
+    private View view;
+    private UserPresenter presenter;
+    private Button userProfileBtn;
+    private Button settingsBtn;
+    private Button logoutBtn;
 
     //endregion
 
@@ -40,7 +40,7 @@ public class UserFragmentView extends Fragment {
                              Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.fragment_user, container, false);
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        presenter = new UserPresenter(this);
 
         initializeControls();
         prepareListeners();
@@ -84,15 +84,15 @@ public class UserFragmentView extends Fragment {
         builder.setMessage(R.string.logout_question);
         builder.setPositiveButton(R.string.answer_yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                FirebaseAuth.getInstance().signOut();
-                goToLoginActivity();
+                presenter.signOut();
             }
         });
         builder.setNegativeButton(R.string.answer_no, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
+                dialog.dismiss();
             }
         });
-        AlertDialog dialog = builder.create();
+        builder.show();
     }
 
     public void goToLoginActivity(){
