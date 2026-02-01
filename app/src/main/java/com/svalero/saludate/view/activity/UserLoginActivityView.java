@@ -1,8 +1,7 @@
-package com.svalero.saludate.view;
+package com.svalero.saludate.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -12,22 +11,21 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.svalero.saludate.R;
 import com.svalero.saludate.contract.UserLoginContract;
+import com.svalero.saludate.domain.UserData;
 import com.svalero.saludate.presenter.UserLoginPresenter;
 
 public class UserLoginActivityView extends AppCompatActivity implements UserLoginContract.View {
 
     //region Properties
-    FirebaseAuth mAuth;
 
-    UserLoginPresenter presenter;
+    private UserLoginPresenter presenter;
 
-    EditText edtEmailAddress, edtPassword;
-    Button btnLogin;
-    TextView tvGoRegister;
+    private EditText edtEmailAddress, edtPassword;
+    private Button btnLogin;
+    private TextView tvGoRegister;
 
     //endregion
 
@@ -41,7 +39,6 @@ public class UserLoginActivityView extends AppCompatActivity implements UserLogi
         setContentView(R.layout.activity_user_login);
         setTitle(R.string.user_login_view);
 
-        mAuth = FirebaseAuth.getInstance();
         presenter = new UserLoginPresenter(this);
 
         initializeComponents();
@@ -109,9 +106,9 @@ public class UserLoginActivityView extends AppCompatActivity implements UserLogi
         email = String.valueOf(edtEmailAddress.getText());
         password = String.valueOf(edtPassword.getText());
 
-        if(TextUtils.isEmpty(email)){
+        if(email.isEmpty()){
             Toast.makeText(UserLoginActivityView.this, R.string.error_empty_email, Toast.LENGTH_SHORT).show();
-        } else if(TextUtils.isEmpty(password)){
+        } else if(password.isEmpty()){
             Toast.makeText(UserLoginActivityView.this, R.string.error_empty_password, Toast.LENGTH_SHORT).show();
         } else{
             presenter.loginUser(email, password);
@@ -125,11 +122,10 @@ public class UserLoginActivityView extends AppCompatActivity implements UserLogi
     }
 
     public void goToMain(){
-        FirebaseUser user = presenter.getUser();
+        FirebaseUser firebaseUser = presenter.getUser();
 
-        if(user != null){
+        if(firebaseUser != null){
             Intent intent = new Intent(getApplicationContext(), MainActivityView.class);
-            intent.putExtra("user", user);
             startActivity(intent);
             finish();
         }

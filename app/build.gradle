@@ -31,15 +31,28 @@ android {
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'androidx.fragment:fragment:1.8.9'
     implementation 'com.google.android.material:material:1.12.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation "androidx.core:core-splashscreen:1.0.1"
+    implementation 'androidx.datastore:datastore-preferences:1.0.0'
 
-    //Firebase
-    implementation platform('com.google.firebase:firebase-bom:34.4.0')
-    implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.firebase:firebase-firestore")
-    implementation("com.google.firebase:firebase-storage")
+    // Kotlin runtime (required by DataStore)
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.10'
+
+    // DataStore
+    implementation 'androidx.datastore:datastore-preferences:1.1.1'
+    implementation 'androidx.datastore:datastore-preferences-core:1.1.1'
+    implementation 'androidx.datastore:datastore-core:1.1.1'
+
+    // Kotlin coroutines (required by DataStore)
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3'
+
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:31.5.0')
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-firestore'
 }
