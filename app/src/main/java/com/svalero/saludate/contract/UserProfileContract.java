@@ -9,15 +9,18 @@ public interface UserProfileContract {
     interface Model {
         void updateUser(UserData userData, OnCompleteListener<AuthResult> callback);
         FirebaseUser getUser();
+        UserData getUserData();
     }
 
     interface View {
         void clearInputs();
+        void showSavedUserSuccess();
         void showError(String message);
     }
 
     interface Presenter {
         void updateUser(UserData userData);
         FirebaseUser getUser();
+        UserData getUserData();
     }
 }

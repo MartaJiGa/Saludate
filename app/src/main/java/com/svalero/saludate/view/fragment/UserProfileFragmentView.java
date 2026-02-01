@@ -64,9 +64,14 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
 
         this.presenter = new UserProfilePresenter(this);
         firebaseUser = presenter.getUser();
-        firebaseUser = presenter.getUserData();
+
+        userData = new UserData(firebaseUser.getUid());
+        userData = presenter.getUserData();
+
+        userData = new UserData();
 
         initializeEditText();
+        setValuesInEditText();
         initializeSpinner();
         initializeButtonListeners();
 
@@ -82,6 +87,11 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
         edtPassword.setText("");
         edtNewPassword.setText("");
         edtConfirmNewPassword.setText("");
+    }
+
+    @Override
+    public void showSavedUserSuccess() {
+        Toast.makeText(this.getContext(), getString(R.string.success_saving_user), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -104,11 +114,16 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
         edtNewPassword = view.findViewById(R.id.edt_user_profile_new_password);
         edtConfirmNewPassword = view.findViewById(R.id.edt_user_profile_confirm_new_password);
         edtBirthDate = view.findViewById(R.id.edt_birthdate);
-        selectedDate = Calendar.getInstance();
-        dateFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
-        edtBirthDate.setText(dateFormatter.format(selectedDate.getTime()));
+        dateFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         edtBirthDate.setOnClickListener(v -> showDatePickerDialog());
+    }
+
+    private void setValuesInEditText(){
+        edtName.setText(userData.getName());
+        edtSurname.setText(userData.getSurname());
+        edtEmail.setText(firebaseUser.getEmail());
+        setBirthDate(userData.getBirthdate());
     }
 
     private void initializeSpinner(){
@@ -149,6 +164,8 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
     }
 
     public void initializeButtonListeners(){
+        btnSave = view.findViewById(R.id.btn_user_profile_save);
+
         btnSave.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -212,7 +229,6 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
         return edtBirthDate.getText().toString();
     }
 
-    // Método para cargar una fecha guardada
     public void setBirthDate(String dateString) {
         if (dateString != null && !dateString.isEmpty()) {
             edtBirthDate.setText(dateString);
@@ -221,6 +237,10 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+        else{
+            selectedDate = Calendar.getInstance();
+            edtBirthDate.setText(dateFormatter.format(selectedDate.getTime()));
         }
     }
 

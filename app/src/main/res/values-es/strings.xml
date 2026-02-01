@@ -37,6 +37,7 @@
     <string name="new_password">Nueva contraseña</string>
     <string name="confirm_new_password">Confirmar nueva contraseña</string>
     <string name="error_password">Contraseña incorrecta</string>
+    <string name="success_saving_user">Usuario guardado satisfactoriamente</string>
 
     <!-- SKIN CONDITIONS SECTION -->
     <string name="skin_conditions">Condiciones cutáneas</string>

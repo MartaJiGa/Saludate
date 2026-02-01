@@ -40,6 +40,7 @@ public class UserProfilePresenter implements UserProfileContract.Presenter {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     view.clearInputs();
+                    view.showSavedUserSuccess();
                 } else {
                     view.clearInputs();
                     view.showError(task.getException().getMessage());
@@ -51,6 +52,11 @@ public class UserProfilePresenter implements UserProfileContract.Presenter {
     @Override
     public FirebaseUser getUser() {
         return model.getUser();
+    }
+
+    @Override
+    public UserData getUserData() {
+        return model.getUserData();
     }
 
     //endregion
