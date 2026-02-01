@@ -2,7 +2,6 @@ package com.svalero.saludate.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -22,13 +21,13 @@ public class UserRegistrationActivityView extends AppCompatActivity implements U
 
     //region Properties
 
-    FirebaseAuth mAuth;
+    private FirebaseAuth mAuth;
 
-    UserRegistrationPresenter presenter;
+    private UserRegistrationPresenter presenter;
 
-    EditText edtEmailAddress, edtPassword, edtConfirmPassword;
-    Button btnRegister;
-    TextView tvGoLogin;
+    private EditText edtEmailAddress, edtPassword, edtConfirmPassword;
+    private Button btnRegister;
+    private TextView tvGoLogin;
 
     //endregion
 
@@ -106,11 +105,11 @@ public class UserRegistrationActivityView extends AppCompatActivity implements U
         password = String.valueOf(edtPassword.getText());
         confirmPassword = String.valueOf(edtConfirmPassword.getText());
 
-        if(TextUtils.isEmpty(email)){
+        if(email.isEmpty()){
             Toast.makeText(UserRegistrationActivityView.this, R.string.error_empty_email, Toast.LENGTH_SHORT).show();
-        } else if(TextUtils.isEmpty(password)){
+        } else if(password.isEmpty()){
             Toast.makeText(UserRegistrationActivityView.this, R.string.error_empty_password, Toast.LENGTH_SHORT).show();
-        } else if(TextUtils.isEmpty(confirmPassword)){
+        } else if(confirmPassword.isEmpty()){
             Toast.makeText(UserRegistrationActivityView.this, R.string.error_empty_password_confirmation, Toast.LENGTH_SHORT).show();
         } else if(!password.equals(confirmPassword)){
             Toast.makeText(UserRegistrationActivityView.this, R.string.error_passwords_comparison, Toast.LENGTH_SHORT).show();

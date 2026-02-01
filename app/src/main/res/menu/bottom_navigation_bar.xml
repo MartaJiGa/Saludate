@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/nav_skin_conditions"
-        android:title="@string/skin_conditions"
+        android:title="@string/skin_conditions_abbreviated"
         android:icon="@drawable/skin_conditions" />
 
     <item

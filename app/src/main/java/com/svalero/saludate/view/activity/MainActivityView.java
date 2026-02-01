@@ -1,5 +1,6 @@
 package com.svalero.saludate.view.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -7,16 +8,19 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.svalero.saludate.R;
+import com.svalero.saludate.domain.UserData;
+import com.svalero.saludate.presenter.UserLoginPresenter;
 import com.svalero.saludate.view.fragment.CalendarFragmentView;
 import com.svalero.saludate.view.fragment.SkinConditionsFragmentView;
 import com.svalero.saludate.view.fragment.UserFragmentView;
-import com.svalero.saludate.view.fragment.UserProfileFragmentView;
 
 public class MainActivityView extends AppCompatActivity {
 
     //region Properties
 
-    BottomNavigationView bottomNavigationView;
+    private UserLoginPresenter presenter;
+    private BottomNavigationView bottomNavigationView;
+
 
     //endregion
 
@@ -25,7 +29,6 @@ public class MainActivityView extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
