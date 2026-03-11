@@ -44,11 +44,25 @@ public class UserProfilePresenter implements UserProfileContract.Presenter {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
+                    view.savedUserDataSuccess();
+                } else {
+                    view.savedUserDataError(task.getException().getMessage());
+                }
+            }
+        });
+    }
+
+    @Override
+    public void updateUserEmail(String email) {
+        model.updateUserEmail(email, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
                     view.clearInputs();
-                    view.showSavedUserSuccess(context.getString(R.string.success_saving_user));
+                    view.updateEmailSuccess();
                 } else {
                     view.clearInputs();
-                    view.showError(context.getString(R.string.error_authentication_failed) + ": " + task.getException().getMessage());
+                    view.updateEmailError(task.getException().getMessage());
                 }
             }
         });

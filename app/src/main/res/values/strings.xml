@@ -3,6 +3,7 @@
 
     <!-- GENERAL -->
     <string name="app_name">Salúdate</string>
+    <string name="ok">Accept</string>
     <string name="save">Save</string>
     <string name="logout">Logout</string>
     <string name="firebase_error_log">Firebase Error</string>
@@ -39,6 +40,9 @@
     <string name="confirm_new_password">Confirm New Password</string>
     <string name="error_password">Incorrect password</string>
     <string name="success_saving_user">User successfully saved</string>
+    <string name="error_saving_user_info">User info saving error</string>
+    <string name="error_retrieving_user_info">User info retrieving error</string>
+    <string name="errors_while_saving">Errors while saving</string>
 
     <!-- SKIN CONDITIONS SECTION -->
     <string name="skin_conditions">Skin conditions</string>

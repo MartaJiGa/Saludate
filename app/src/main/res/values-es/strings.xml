@@ -3,6 +3,7 @@
 
     <!-- GENERAL -->
     <string name="app_name">Salúdate</string>
+    <string name="ok">Aceptar</string>
     <string name="save">Guardar</string>
     <string name="logout">Cerrar Sesión</string>
     <string name="firebase_error_log">Firebase Error</string>
@@ -23,6 +24,7 @@
     <string name="error_passwords_comparison">Las contraseñas no coinciden</string>
     <string name="error_authentication_failed">Error al iniciar sesión</string>
     <string name="error_registration_failed">Error al registrarse</string>
+    <string name="errors_while_saving">Guardado incompleto</string>
 
     <!-- CALENDAR SECTION -->
     <string name="calendar">Calendario</string>
@@ -39,6 +41,8 @@
     <string name="confirm_new_password">Confirmar nueva contraseña</string>
     <string name="error_password">Contraseña incorrecta</string>
     <string name="success_saving_user">Usuario guardado satisfactoriamente</string>
+    <string name="error_saving_user_info">Error guardando la información de usuario</string>
+    <string name="error_retrieving_user_info">Error obteniendo la información de usuario</string>
 
     <!-- SKIN CONDITIONS SECTION -->
     <string name="skin_conditions">Condiciones cutáneas</string>

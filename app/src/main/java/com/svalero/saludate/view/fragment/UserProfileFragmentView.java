@@ -12,8 +12,10 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseUser;
 import com.svalero.saludate.R;
@@ -23,8 +25,11 @@ import com.svalero.saludate.presenter.UserProfilePresenter;
 import com.svalero.saludate.util.Constants;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class UserProfileFragmentView extends Fragment implements UserProfileContract.View {
 
@@ -43,9 +48,12 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
     private SimpleDateFormat dateFormatter;
     private FirebaseUser firebaseUser;
     private UserData userData;
+    private UserData newUserData;
     private Spinner sexSpinner;
     private int selectedSexPosition;
     private Button btnSave;
+    private int completedTasks;
+    private List<String> errorList;
 
     //endregion
 
@@ -67,9 +75,7 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
         userData = new UserData(firebaseUser.getUid());
         presenter.getUserData(firebaseUser);
 
-        initializeEditText();
-        initializeSpinner();
-        initializeButtonListeners();
+        initializeValues();
 
         return view;
     }
@@ -90,23 +96,52 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
         userData = retrievedUserData;
 
         setValuesInEditText();
+        setBirthDate(userData.getBirthdate());
         setValueInSexSpinner();
     }
 
     @Override
-    public void showSavedUserSuccess(String message) {
-        Toast.makeText(this.getContext(), message, Toast.LENGTH_SHORT).show();
+    public void savedUserDataSuccess() {
+        completedTasks++;
+        checkIfTasksAreCompleted();
+    }
+
+    @Override
+    public void savedUserDataError(String message) {
+        errorList.add(R.string.error_saving_user_info + ": " + message);
+        checkIfTasksAreCompleted();
+    }
+
+    @Override
+    public void updateEmailSuccess() {
+        completedTasks++;
+        checkIfTasksAreCompleted();
+    }
+
+    @Override
+    public void updateEmailError(String message) {
+        errorList.add(R.string.error_saving_user_info + ": " + message);
+        checkIfTasksAreCompleted();
     }
 
     @Override
     public void showError(String message) {
-        Toast.makeText(this.getContext(), message, Toast.LENGTH_SHORT).show();
-        Log.e(getString(R.string.firebase_error_log), message);
+        errorList.add(R.string.error_retrieving_user_info + ": " + message);
+        checkIfTasksAreCompleted();
     }
 
     //endregion
 
     //region Methods
+
+    private void initializeValues(){
+        initializeEditText();
+        initializeSpinner();
+        initializeButtonListeners();
+
+        completedTasks = 0;
+        errorList = new ArrayList<>();
+    }
 
     private void initializeEditText(){
         edtName = view.findViewById(R.id.edt_user_profile_name);
@@ -126,7 +161,6 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
         edtName.setText(userData.getName());
         edtSurname.setText(userData.getSurname());
         edtEmail.setText(firebaseUser.getEmail());
-        setBirthDate(userData.getBirthdate());
     }
 
     private void setValueInSexSpinner(){
@@ -180,31 +214,57 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
     }
 
     public void saveUserData(){
-        String name, surname, email, password, newPassword, confirmNewPassword;
-        name = String.valueOf(edtName.getText());
-        surname = String.valueOf(edtSurname.getText());
+        String email, password, newPassword, confirmNewPassword;
         email = String.valueOf(edtEmail.getText());
         password = String.valueOf(edtPassword.getText());
         newPassword = String.valueOf(edtNewPassword.getText());
         confirmNewPassword = String.valueOf(edtConfirmNewPassword.getText());
 
-        userData.setFirebaseUserId(firebaseUser.getUid());
-        userData.setName(name);
-        userData.setSurname(surname);
-        userData.setSex(selectedSexPosition);
-        userData.setBirthdate(getBirthDate());
+        if(email.isEmpty()){
+            Toast.makeText(this.getContext(), R.string.error_empty_email, Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        presenter.updateUser(userData);
+        newUserData = new UserData();
 
-//        if(email.isEmpty()){
-//            Toast.makeText(UserProfileFragmentView.this, R.string.error_empty_email, Toast.LENGTH_SHORT).show();
-//        } else if(!user.getPassword().equals(password)){
-//            Toast.makeText(UserProfileFragmentView.this, R.string.error_password, Toast.LENGTH_SHORT).show();
-//        } else if(!newPassword.equals(confirmNewPassword)){
-//            Toast.makeText(UserProfileFragmentView.this, R.string.error_passwords_comparison, Toast.LENGTH_SHORT).show();
-//        } else{
-//            presenter.updateUser(user);
-//        }
+        newUserData.setFirebaseUserId(firebaseUser.getUid());
+        newUserData.setName(String.valueOf(edtName.getText()));
+        newUserData.setSurname(String.valueOf(edtSurname.getText()));
+        newUserData.setSex(selectedSexPosition);
+        newUserData.setBirthdate(getBirthDate());
+
+        if(checkAtLeastOneUserDataDoesNotMatch()){
+            presenter.updateUser(userData);
+        }
+
+        if(!Objects.requireNonNull(firebaseUser.getEmail()).equalsIgnoreCase(email)){
+            presenter.updateUserEmail(email);
+        }
+
+        if(!user.getPassword().equals(password)){
+            Toast.makeText(this.getContext(), R.string.error_password, Toast.LENGTH_SHORT).show();
+        } else if(!newPassword.equals(confirmNewPassword)){
+            Toast.makeText(this.getContext(), R.string.error_passwords_comparison, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean checkAtLeastOneUserDataDoesNotMatch(){
+        boolean mustUpdateUserData = false;
+
+        if(!userData.getName().equalsIgnoreCase(newUserData.getName())){
+            mustUpdateUserData = true;
+        }
+        if(!userData.getSurname().equalsIgnoreCase(newUserData.getSurname())){
+            mustUpdateUserData = true;
+        }
+        if(!userData.getBirthdate().equalsIgnoreCase(newUserData.getBirthdate())){
+            mustUpdateUserData = true;
+        }
+        if(userData.getSex() != newUserData.getSex()){
+            mustUpdateUserData = true;
+        }
+
+        return mustUpdateUserData;
     }
 
     private void showDatePickerDialog() {
@@ -230,11 +290,11 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
         datePickerDialog.show();
     }
 
-    public String getBirthDate() {
+    private String getBirthDate() {
         return edtBirthDate.getText().toString();
     }
 
-    public void setBirthDate(String dateString) {
+    private void setBirthDate(String dateString) {
         if (dateString != null && !dateString.isEmpty()) {
             edtBirthDate.setText(dateString);
             try {
@@ -245,6 +305,37 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
         }
         else{
             edtBirthDate.setText(dateFormatter.format(selectedDate.getTime()));
+        }
+    }
+
+    private void showSaveMessageSuccess(){
+        Toast.makeText(this.getContext(), R.string.success_saving_user, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showSaveMessageError(){
+        String errorMessage = "";
+        for (int i = 0; i < errorList.size(); i++) {
+            if(i > 0){
+                errorMessage += "\n";
+            }
+            errorMessage += errorList.get(i);
+        }
+        new AlertDialog.Builder(this.getContext())
+                .setTitle(R.string.errors_while_saving)
+                .setMessage(errorMessage)
+                .setPositiveButton(R.string.ok, null)
+                .show();
+        Toast.makeText(this.getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    private void checkIfTasksAreCompleted(){
+        if(completedTasks == Constants.USER_PROFILE_TASKS){
+            if(errorList.size() > 0){
+                showSaveMessageError();
+            }
+            else{
+                showSaveMessageSuccess();
+            }
         }
     }
 

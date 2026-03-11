@@ -65,6 +65,31 @@ public class UserProfileModel implements UserProfileContract.Model {
     }
 
     @Override
+    public void updateUserEmail(String email, OnCompleteListener<AuthResult> callback) {
+        FirebaseUser user = mAuth.getCurrentUser();
+        String emailBeforeUpdate = user.getEmail();
+
+        user.updateEmail(email)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "User email address updated. Before: " + emailBeforeUpdate + ". After: " + email);
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error updating user email address", e);
+                        if (callback != null) {
+                            callback.onComplete(Tasks.forException(e));
+                        }
+                    }
+                });
+    }
+
+    @Override
     public FirebaseUser getUser() {
         return mAuth.getCurrentUser();
     }
