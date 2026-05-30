@@ -21,6 +21,7 @@
     <string name="error_empty_email">El email no puede estar vacío</string>
     <string name="error_empty_password">La contraseña no puede estar vacía</string>
     <string name="error_empty_password_confirmation">La confirmación de la contraseña no puede estar vacía</string>
+    <string name="error_current_password_filled">La contraseña actual debe estar rellena</string>
     <string name="error_passwords_comparison">Las contraseñas no coinciden</string>
     <string name="error_authentication_failed">Error al iniciar sesión</string>
     <string name="error_registration_failed">Error al registrarse</string>
@@ -37,11 +38,13 @@
     <string name="surname">Apellidos</string>
     <string name="birthdate">Fecha de nacimiento</string>
     <string name="sex">Sexo</string>
+    <string name="current_password">Contraseña actual</string>
     <string name="new_password">Nueva contraseña</string>
     <string name="confirm_new_password">Confirmar nueva contraseña</string>
     <string name="error_password">Contraseña incorrecta</string>
     <string name="success_saving_user">Usuario guardado satisfactoriamente</string>
     <string name="error_saving_user_info">Error guardando la información de usuario</string>
+    <string name="no_changes_saving_user_info">No hay cambios que guardar del usuario</string>
     <string name="error_retrieving_user_info">Error obteniendo la información de usuario</string>
 
     <!-- SKIN CONDITIONS SECTION -->

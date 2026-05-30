@@ -8,7 +8,7 @@ import com.svalero.saludate.domain.UserData;
 public interface UserProfileContract {
     interface Model {
         void updateUser(UserData userData, OnCompleteListener<AuthResult> callback);
-        void updateUserEmail(String email, OnCompleteListener<AuthResult> callback);
+        void updateUserPassword(String currentPassword, String newPassword, OnCompleteListener<Void> callback);
         FirebaseUser getUser();
         void getUserData(FirebaseUser firebaseUser, OnCompleteListener<UserData> callback);
     }
@@ -18,14 +18,14 @@ public interface UserProfileContract {
         void setDataInControls(UserData retrievedUserData);
         void savedUserDataSuccess();
         void savedUserDataError(String message);
-        void updateEmailSuccess();
-        void updateEmailError(String message);
+        void updatePasswordSuccess();
+        void updatePasswordError(String message);
         void showError(String message);
     }
 
     interface Presenter {
         void updateUser(UserData userData);
-        void updateUserEmail(String email);
+        void updateUserPassword(String currentPassword, String newPassword);
         FirebaseUser getUser();
         void getUserData(FirebaseUser firebaseUser);
     }

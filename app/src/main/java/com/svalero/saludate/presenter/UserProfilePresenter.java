@@ -53,16 +53,16 @@ public class UserProfilePresenter implements UserProfileContract.Presenter {
     }
 
     @Override
-    public void updateUserEmail(String email) {
-        model.updateUserEmail(email, new OnCompleteListener<AuthResult>() {
+    public void updateUserPassword(String currentPassword, String newPassword) {
+        model.updateUserPassword(currentPassword, newPassword, new OnCompleteListener<Void>() {
             @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
+            public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     view.clearInputs();
-                    view.updateEmailSuccess();
+                    view.updatePasswordSuccess();
                 } else {
                     view.clearInputs();
-                    view.updateEmailError(task.getException().getMessage());
+                    view.updatePasswordError(task.getException().getMessage());
                 }
             }
         });

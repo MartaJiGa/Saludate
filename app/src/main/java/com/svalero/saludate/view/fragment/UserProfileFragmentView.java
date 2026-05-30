@@ -40,7 +40,7 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
     private TextInputEditText edtName;
     private TextInputEditText edtSurname;
     private TextInputEditText edtEmail;
-    private TextInputEditText edtPassword;
+    private TextInputEditText edtCurrentPassword;
     private TextInputEditText edtNewPassword;
     private TextInputEditText edtConfirmNewPassword;
     private TextInputEditText edtBirthDate;
@@ -54,6 +54,7 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
     private Button btnSave;
     private int completedTasks;
     private List<String> errorList;
+    private int userProfileTasks;
 
     //endregion
 
@@ -72,6 +73,7 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
         this.presenter = new UserProfilePresenter(this, this.getContext());
         firebaseUser = presenter.getUser();
 
+        userProfileTasks++;
         userData = new UserData(firebaseUser.getUid());
         presenter.getUserData(firebaseUser);
 
@@ -86,13 +88,18 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
 
     @Override
     public void clearInputs() {
-        edtPassword.setText("");
+        edtCurrentPassword.setText("");
         edtNewPassword.setText("");
         edtConfirmNewPassword.setText("");
     }
 
     @Override
     public void setDataInControls(UserData retrievedUserData) {
+        if(retrievedUserData == null) {
+            edtEmail.setText(firebaseUser.getEmail());
+            return;
+        }
+
         userData = retrievedUserData;
 
         setValuesInEditText();
@@ -108,25 +115,27 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
 
     @Override
     public void savedUserDataError(String message) {
-        errorList.add(R.string.error_saving_user_info + ": " + message);
+        completedTasks++;
+        errorList.add(getString(R.string.error_saving_user_info) + ": " + message);
         checkIfTasksAreCompleted();
     }
 
     @Override
-    public void updateEmailSuccess() {
+    public void updatePasswordSuccess() {
         completedTasks++;
         checkIfTasksAreCompleted();
     }
 
     @Override
-    public void updateEmailError(String message) {
-        errorList.add(R.string.error_saving_user_info + ": " + message);
+    public void updatePasswordError(String message) {
+        completedTasks++;
+        errorList.add(getString(R.string.error_saving_user_info) + ": " + message);
         checkIfTasksAreCompleted();
     }
 
     @Override
     public void showError(String message) {
-        errorList.add(R.string.error_retrieving_user_info + ": " + message);
+        errorList.add(getString(R.string.error_retrieving_user_info) + ": " + message);
         checkIfTasksAreCompleted();
     }
 
@@ -139,7 +148,7 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
         initializeSpinner();
         initializeButtonListeners();
 
-        completedTasks = 0;
+        initializeTasks();
         errorList = new ArrayList<>();
     }
 
@@ -147,7 +156,7 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
         edtName = view.findViewById(R.id.edt_user_profile_name);
         edtSurname = view.findViewById(R.id.edt_user_profile_surname);
         edtEmail = view.findViewById(R.id.edt_user_profile_email);
-        edtPassword = view.findViewById(R.id.edt_user_profile_password);
+        edtCurrentPassword = view.findViewById(R.id.edt_user_profile_current_password);
         edtNewPassword = view.findViewById(R.id.edt_user_profile_new_password);
         edtConfirmNewPassword = view.findViewById(R.id.edt_user_profile_confirm_new_password);
         edtBirthDate = view.findViewById(R.id.edt_birthdate);
@@ -214,57 +223,69 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
     }
 
     public void saveUserData(){
-        String email, password, newPassword, confirmNewPassword;
-        email = String.valueOf(edtEmail.getText());
-        password = String.valueOf(edtPassword.getText());
-        newPassword = String.valueOf(edtNewPassword.getText());
-        confirmNewPassword = String.valueOf(edtConfirmNewPassword.getText());
+        initializeTasks();
 
-        if(email.isEmpty()){
-            Toast.makeText(this.getContext(), R.string.error_empty_email, Toast.LENGTH_SHORT).show();
-            return;
-        }
+        String email, currentPassword, newPassword, confirmNewPassword;
+        email = String.valueOf(edtEmail.getText()).trim();
+        currentPassword = String.valueOf(edtCurrentPassword.getText()).trim();
+        newPassword = String.valueOf(edtNewPassword.getText()).trim();
+        confirmNewPassword = String.valueOf(edtConfirmNewPassword.getText()).trim();
 
         newUserData = new UserData();
 
         newUserData.setFirebaseUserId(firebaseUser.getUid());
-        newUserData.setName(String.valueOf(edtName.getText()));
-        newUserData.setSurname(String.valueOf(edtSurname.getText()));
+        newUserData.setName(String.valueOf(edtName.getText()).trim());
+        newUserData.setSurname(String.valueOf(edtSurname.getText()).trim());
         newUserData.setSex(selectedSexPosition);
         newUserData.setBirthdate(getBirthDate());
 
+        boolean isUserDataUpdate = false, isPasswordUpdate = false;
+
         if(checkAtLeastOneUserDataDoesNotMatch()){
-            presenter.updateUser(userData);
+            isUserDataUpdate = true;
+            userProfileTasks++;
         }
 
-        if(!Objects.requireNonNull(firebaseUser.getEmail()).equalsIgnoreCase(email)){
-            presenter.updateUserEmail(email);
-        }
-
-        if(!user.getPassword().equals(password)){
-            Toast.makeText(this.getContext(), R.string.error_password, Toast.LENGTH_SHORT).show();
-        } else if(!newPassword.equals(confirmNewPassword)){
+        if(!newPassword.isEmpty() && newPassword.equals(confirmNewPassword)){
+            isPasswordUpdate = true;
+            userProfileTasks++;
+        } else if(!newPassword.equals(confirmNewPassword)) {
             Toast.makeText(this.getContext(), R.string.error_passwords_comparison, Toast.LENGTH_SHORT).show();
         }
+
+        if(isUserDataUpdate || isPasswordUpdate)
+            updateUserInfo(isUserDataUpdate, isPasswordUpdate, currentPassword, newPassword);
+        else
+            Toast.makeText(this.getContext(), R.string.no_changes_saving_user_info, Toast.LENGTH_SHORT).show();
     }
 
     private boolean checkAtLeastOneUserDataDoesNotMatch(){
         boolean mustUpdateUserData = false;
 
-        if(!userData.getName().equalsIgnoreCase(newUserData.getName())){
+        if((userData.getName() == null && !newUserData.getName().equals("")) ||
+                (userData.getName() != null && !userData.getName().equalsIgnoreCase(newUserData.getName())))
             mustUpdateUserData = true;
-        }
-        if(!userData.getSurname().equalsIgnoreCase(newUserData.getSurname())){
+
+        if((userData.getSurname() == null && !newUserData.getSurname().equals("")) ||
+                (userData.getSurname() != null && !userData.getSurname().equalsIgnoreCase(newUserData.getSurname())))
             mustUpdateUserData = true;
-        }
-        if(!userData.getBirthdate().equalsIgnoreCase(newUserData.getBirthdate())){
+
+        if((userData.getBirthdate() == null && !newUserData.getBirthdate().equals("")) ||
+                (userData.getBirthdate() != null && !userData.getBirthdate().equalsIgnoreCase(newUserData.getBirthdate())))
             mustUpdateUserData = true;
-        }
-        if(userData.getSex() != newUserData.getSex()){
+
+        if(userData.getSex() != newUserData.getSex())
             mustUpdateUserData = true;
-        }
 
         return mustUpdateUserData;
+    }
+
+    private void updateUserInfo(boolean isUserDataUpdate, boolean isPasswordUpdate, String currentPassword, String newPassword){
+        if(isUserDataUpdate)
+            presenter.updateUser(newUserData);
+
+        if(isPasswordUpdate)
+            presenter.updateUserPassword(currentPassword, newPassword);
     }
 
     private void showDatePickerDialog() {
@@ -303,9 +324,7 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
                 e.printStackTrace();
             }
         }
-        else{
-            edtBirthDate.setText(dateFormatter.format(selectedDate.getTime()));
-        }
+        else edtBirthDate.setText(dateFormatter.format(selectedDate.getTime()));
     }
 
     private void showSaveMessageSuccess(){
@@ -325,18 +344,21 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
                 .setMessage(errorMessage)
                 .setPositiveButton(R.string.ok, null)
                 .show();
-        Toast.makeText(this.getContext(), errorMessage, Toast.LENGTH_SHORT).show();
     }
 
     private void checkIfTasksAreCompleted(){
-        if(completedTasks == Constants.USER_PROFILE_TASKS){
-            if(errorList.size() > 0){
+        if(completedTasks == userProfileTasks){
+            if(errorList.size() > 0)
                 showSaveMessageError();
-            }
-            else{
+            else
                 showSaveMessageSuccess();
-            }
         }
+    }
+
+    private void initializeTasks(){
+        errorList = new ArrayList<>();
+        userProfileTasks = 0;
+        completedTasks = 0;
     }
 
     //endregion

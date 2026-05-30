@@ -122,10 +122,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginBottom="16dp"
-                android:hint="@string/password">
+                android:hint="@string/current_password">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edt_user_profile_password"
+                    android:id="@+id/edt_user_profile_current_password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"

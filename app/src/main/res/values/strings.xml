@@ -21,8 +21,10 @@
     <string name="error_empty_email">Email can\'t be empty</string>
     <string name="error_empty_password">Password can\'t be empty</string>
     <string name="error_empty_password_confirmation">Confirmation password can\'t be empty</string>
+    <string name="error_current_password_filled">Current password must be filled</string>
     <string name="error_passwords_comparison">Passwords don\'t match</string>
     <string name="error_authentication_failed">Authentication failed</string>
+    <string name="no_changes_saving_user_info">No changes to save user info</string>
     <string name="error_registration_failed">Registration failed</string>
 
     <!-- CALENDAR SECTION -->
@@ -36,6 +38,7 @@
     <string name="surname">Surname</string>
     <string name="birthdate">Birthdate</string>
     <string name="sex">Sex</string>
+    <string name="current_password">Current Password</string>
     <string name="new_password">New Password</string>
     <string name="confirm_new_password">Confirm New Password</string>
     <string name="error_password">Incorrect password</string>
