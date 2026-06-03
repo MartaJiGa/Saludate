@@ -12,8 +12,10 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseUser;
 import com.svalero.saludate.R;
@@ -23,8 +25,11 @@ import com.svalero.saludate.presenter.UserProfilePresenter;
 import com.svalero.saludate.util.Constants;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class UserProfileFragmentView extends Fragment implements UserProfileContract.View {
 
@@ -35,7 +40,7 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
     private TextInputEditText edtName;
     private TextInputEditText edtSurname;
     private TextInputEditText edtEmail;
-    private TextInputEditText edtPassword;
+    private TextInputEditText edtCurrentPassword;
     private TextInputEditText edtNewPassword;
     private TextInputEditText edtConfirmNewPassword;
     private TextInputEditText edtBirthDate;
@@ -43,9 +48,13 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
     private SimpleDateFormat dateFormatter;
     private FirebaseUser firebaseUser;
     private UserData userData;
+    private UserData newUserData;
     private Spinner sexSpinner;
     private int selectedSexPosition;
     private Button btnSave;
+    private int completedTasks;
+    private List<String> errorList;
+    private int userProfileTasks;
 
     //endregion
 
@@ -64,12 +73,11 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
         this.presenter = new UserProfilePresenter(this, this.getContext());
         firebaseUser = presenter.getUser();
 
+        userProfileTasks++;
         userData = new UserData(firebaseUser.getUid());
         presenter.getUserData(firebaseUser);
 
-        initializeEditText();
-        initializeSpinner();
-        initializeButtonListeners();
+        initializeValues();
 
         return view;
     }
@@ -80,39 +88,75 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
 
     @Override
     public void clearInputs() {
-        edtPassword.setText("");
+        edtCurrentPassword.setText("");
         edtNewPassword.setText("");
         edtConfirmNewPassword.setText("");
     }
 
     @Override
     public void setDataInControls(UserData retrievedUserData) {
+        if(retrievedUserData == null) {
+            edtEmail.setText(firebaseUser.getEmail());
+            return;
+        }
+
         userData = retrievedUserData;
 
         setValuesInEditText();
+        setBirthDate(userData.getBirthdate());
         setValueInSexSpinner();
     }
 
     @Override
-    public void showSavedUserSuccess(String message) {
-        Toast.makeText(this.getContext(), message, Toast.LENGTH_SHORT).show();
+    public void savedUserDataSuccess() {
+        completedTasks++;
+        checkIfTasksAreCompleted();
+    }
+
+    @Override
+    public void savedUserDataError(String message) {
+        completedTasks++;
+        errorList.add(getString(R.string.error_saving_user_info) + ": " + message);
+        checkIfTasksAreCompleted();
+    }
+
+    @Override
+    public void updatePasswordSuccess() {
+        completedTasks++;
+        checkIfTasksAreCompleted();
+    }
+
+    @Override
+    public void updatePasswordError(String message) {
+        completedTasks++;
+        errorList.add(getString(R.string.error_saving_user_info) + ": " + message);
+        checkIfTasksAreCompleted();
     }
 
     @Override
     public void showError(String message) {
-        Toast.makeText(this.getContext(), message, Toast.LENGTH_SHORT).show();
-        Log.e(getString(R.string.firebase_error_log), message);
+        errorList.add(getString(R.string.error_retrieving_user_info) + ": " + message);
+        checkIfTasksAreCompleted();
     }
 
     //endregion
 
     //region Methods
 
+    private void initializeValues(){
+        initializeEditText();
+        initializeSpinner();
+        initializeButtonListeners();
+
+        initializeTasks();
+        errorList = new ArrayList<>();
+    }
+
     private void initializeEditText(){
         edtName = view.findViewById(R.id.edt_user_profile_name);
         edtSurname = view.findViewById(R.id.edt_user_profile_surname);
         edtEmail = view.findViewById(R.id.edt_user_profile_email);
-        edtPassword = view.findViewById(R.id.edt_user_profile_password);
+        edtCurrentPassword = view.findViewById(R.id.edt_user_profile_current_password);
         edtNewPassword = view.findViewById(R.id.edt_user_profile_new_password);
         edtConfirmNewPassword = view.findViewById(R.id.edt_user_profile_confirm_new_password);
         edtBirthDate = view.findViewById(R.id.edt_birthdate);
@@ -126,7 +170,6 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
         edtName.setText(userData.getName());
         edtSurname.setText(userData.getSurname());
         edtEmail.setText(firebaseUser.getEmail());
-        setBirthDate(userData.getBirthdate());
     }
 
     private void setValueInSexSpinner(){
@@ -180,31 +223,69 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
     }
 
     public void saveUserData(){
-        String name, surname, email, password, newPassword, confirmNewPassword;
-        name = String.valueOf(edtName.getText());
-        surname = String.valueOf(edtSurname.getText());
-        email = String.valueOf(edtEmail.getText());
-        password = String.valueOf(edtPassword.getText());
-        newPassword = String.valueOf(edtNewPassword.getText());
-        confirmNewPassword = String.valueOf(edtConfirmNewPassword.getText());
+        initializeTasks();
 
-        userData.setFirebaseUserId(firebaseUser.getUid());
-        userData.setName(name);
-        userData.setSurname(surname);
-        userData.setSex(selectedSexPosition);
-        userData.setBirthdate(getBirthDate());
+        String email, currentPassword, newPassword, confirmNewPassword;
+        email = String.valueOf(edtEmail.getText()).trim();
+        currentPassword = String.valueOf(edtCurrentPassword.getText()).trim();
+        newPassword = String.valueOf(edtNewPassword.getText()).trim();
+        confirmNewPassword = String.valueOf(edtConfirmNewPassword.getText()).trim();
 
-        presenter.updateUser(userData);
+        newUserData = new UserData();
 
-//        if(email.isEmpty()){
-//            Toast.makeText(UserProfileFragmentView.this, R.string.error_empty_email, Toast.LENGTH_SHORT).show();
-//        } else if(!user.getPassword().equals(password)){
-//            Toast.makeText(UserProfileFragmentView.this, R.string.error_password, Toast.LENGTH_SHORT).show();
-//        } else if(!newPassword.equals(confirmNewPassword)){
-//            Toast.makeText(UserProfileFragmentView.this, R.string.error_passwords_comparison, Toast.LENGTH_SHORT).show();
-//        } else{
-//            presenter.updateUser(user);
-//        }
+        newUserData.setFirebaseUserId(firebaseUser.getUid());
+        newUserData.setName(String.valueOf(edtName.getText()).trim());
+        newUserData.setSurname(String.valueOf(edtSurname.getText()).trim());
+        newUserData.setSex(selectedSexPosition);
+        newUserData.setBirthdate(getBirthDate());
+
+        boolean isUserDataUpdate = false, isPasswordUpdate = false;
+
+        if(checkAtLeastOneUserDataDoesNotMatch()){
+            isUserDataUpdate = true;
+            userProfileTasks++;
+        }
+
+        if(!newPassword.isEmpty() && newPassword.equals(confirmNewPassword)){
+            isPasswordUpdate = true;
+            userProfileTasks++;
+        } else if(!newPassword.equals(confirmNewPassword)) {
+            Toast.makeText(this.getContext(), R.string.error_passwords_comparison, Toast.LENGTH_SHORT).show();
+        }
+
+        if(isUserDataUpdate || isPasswordUpdate)
+            updateUserInfo(isUserDataUpdate, isPasswordUpdate, currentPassword, newPassword);
+        else
+            Toast.makeText(this.getContext(), R.string.no_changes_saving_user_info, Toast.LENGTH_SHORT).show();
+    }
+
+    private boolean checkAtLeastOneUserDataDoesNotMatch(){
+        boolean mustUpdateUserData = false;
+
+        if((userData.getName() == null && !newUserData.getName().equals("")) ||
+                (userData.getName() != null && !userData.getName().equalsIgnoreCase(newUserData.getName())))
+            mustUpdateUserData = true;
+
+        if((userData.getSurname() == null && !newUserData.getSurname().equals("")) ||
+                (userData.getSurname() != null && !userData.getSurname().equalsIgnoreCase(newUserData.getSurname())))
+            mustUpdateUserData = true;
+
+        if((userData.getBirthdate() == null && !newUserData.getBirthdate().equals("")) ||
+                (userData.getBirthdate() != null && !userData.getBirthdate().equalsIgnoreCase(newUserData.getBirthdate())))
+            mustUpdateUserData = true;
+
+        if(userData.getSex() != newUserData.getSex())
+            mustUpdateUserData = true;
+
+        return mustUpdateUserData;
+    }
+
+    private void updateUserInfo(boolean isUserDataUpdate, boolean isPasswordUpdate, String currentPassword, String newPassword){
+        if(isUserDataUpdate)
+            presenter.updateUser(newUserData);
+
+        if(isPasswordUpdate)
+            presenter.updateUserPassword(currentPassword, newPassword);
     }
 
     private void showDatePickerDialog() {
@@ -230,11 +311,11 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
         datePickerDialog.show();
     }
 
-    public String getBirthDate() {
+    private String getBirthDate() {
         return edtBirthDate.getText().toString();
     }
 
-    public void setBirthDate(String dateString) {
+    private void setBirthDate(String dateString) {
         if (dateString != null && !dateString.isEmpty()) {
             edtBirthDate.setText(dateString);
             try {
@@ -243,9 +324,41 @@ public class UserProfileFragmentView extends Fragment implements UserProfileCont
                 e.printStackTrace();
             }
         }
-        else{
-            edtBirthDate.setText(dateFormatter.format(selectedDate.getTime()));
+        else edtBirthDate.setText(dateFormatter.format(selectedDate.getTime()));
+    }
+
+    private void showSaveMessageSuccess(){
+        Toast.makeText(this.getContext(), R.string.success_saving_user, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showSaveMessageError(){
+        String errorMessage = "";
+        for (int i = 0; i < errorList.size(); i++) {
+            if(i > 0){
+                errorMessage += "\n";
+            }
+            errorMessage += errorList.get(i);
         }
+        new AlertDialog.Builder(this.getContext())
+                .setTitle(R.string.errors_while_saving)
+                .setMessage(errorMessage)
+                .setPositiveButton(R.string.ok, null)
+                .show();
+    }
+
+    private void checkIfTasksAreCompleted(){
+        if(completedTasks == userProfileTasks){
+            if(errorList.size() > 0)
+                showSaveMessageError();
+            else
+                showSaveMessageSuccess();
+        }
+    }
+
+    private void initializeTasks(){
+        errorList = new ArrayList<>();
+        userProfileTasks = 0;
+        completedTasks = 0;
     }
 
     //endregion

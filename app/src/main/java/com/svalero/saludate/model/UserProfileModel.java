@@ -9,7 +9,9 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -59,6 +61,50 @@ public class UserProfileModel implements UserProfileContract.Model {
                         Log.w(TAG, "Error creating/updating user document", e);
                         if (callback != null) {
                             callback.onComplete(Tasks.forException(e));
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void updateUserPassword(String currentPassword, String newPassword, OnCompleteListener<Void> callback) {
+        FirebaseUser user = mAuth.getCurrentUser();
+
+        if(user == null || user.getEmail() == null) {
+            if(callback != null) {
+                callback.onComplete(Tasks.forException(new Exception("Usuario no autenticado")));
+            }
+            return;
+        }
+
+        AuthCredential credential = EmailAuthProvider.getCredential(
+                user.getEmail(),
+                currentPassword
+        );
+
+        user.reauthenticate(credential)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            user.updatePassword(newPassword)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> emailTask) {
+                                            if (emailTask.isSuccessful()) {
+                                                Log.d(TAG, "Password changed: " + newPassword);
+                                            }
+                                            if (callback != null) {
+                                                callback.onComplete(emailTask);
+                                            }
+                                        }
+                                    });
+                        } else {
+                            Log.w(TAG, "Re-authentication failed", task.getException());
+
+                            if (callback != null) {
+                                callback.onComplete(task);
+                            }
                         }
                     }
                 });
